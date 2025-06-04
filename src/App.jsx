@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Library from './pages/Library';
 import Reader from './pages/Reader';
 import TestPage from './pages/TestPage';
+import Profile from './pages/Profile';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -33,6 +34,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
