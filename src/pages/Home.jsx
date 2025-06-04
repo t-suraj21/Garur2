@@ -4,20 +4,19 @@ import {
   FileText,
   Headphones,
   Keyboard,
-  ArrowRight
+  ArrowRight,
+  User,
+  NotebookPen
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
 
-  const navigateToLibrary = () => {
-    navigate('/library');
-  };
-
-  const navigateToTests = () => {
-    navigate('/tests');
-  };
+  const navigateToLibrary = () => navigate('/library');
+  const navigateToTests = () => navigate('/tests');
+  const navigateToProfile = () => navigate('/profile');
+  const navigateToNotebook = () => navigate('/notebook');
 
   const quickActions = [
     {
@@ -65,12 +64,29 @@ const Home = () => {
       <header className="border-b border-purple-800/30 bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
+            {/* Branding */}
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
                 <Book className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-white">Garur</h1>
             </div>
+
+            {/* Top Navigation */}
+            <nav className="flex items-center space-x-6 text-sm font-medium text-white">
+              <button onClick={navigateToLibrary} className="hover:text-purple-400 transition-all flex items-center gap-1">
+                <Book className="w-4 h-4" /> Library
+              </button>
+              <button onClick={navigateToTests} className="hover:text-purple-400 transition-all flex items-center gap-1">
+                <FileText className="w-4 h-4" /> Tests
+              </button>
+              <button onClick={navigateToProfile} className="hover:text-purple-400 transition-all flex items-center gap-1">
+                <User className="w-4 h-4" /> Profile
+              </button>
+              <button onClick={navigateToNotebook} className="hover:text-purple-400 transition-all flex items-center gap-1">
+                <NotebookPen className="w-4 h-4" /> Notebook
+              </button>
+            </nav>
           </div>
         </div>
       </header>

@@ -14,7 +14,7 @@ const TestPage = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`http://localhost:5000/api/test/start/${classId}/${subject}/${chapterId}`)
+    fetch(`http://localhost:5000/api/tests/${classId}/${subject}/${chapterId}`)
       .then(res => res.json())
       .then(data => {
         setQuestions(data.questions);
@@ -60,7 +60,7 @@ const TestPage = () => {
   };
 
   const handleBackToReader = () => {
-    navigate(`/reader/${classId}/${subject}/${chapterId}`);
+    navigate('/library');
   };
 
   return (
@@ -80,7 +80,7 @@ const TestPage = () => {
                 onClick={handleBackToReader}
                 className="px-6 py-3 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
               >
-                Back to Reader
+                Back to Library
               </button>
               {testCompleted && (
                 <button
