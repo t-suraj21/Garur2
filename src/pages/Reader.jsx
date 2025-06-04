@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { speakText, listenVoice } from '../utils/voiceUtils';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
@@ -27,34 +26,11 @@ const Reader = () => {
 
       if (pdf && data.accessInfo?.pdf?.isAvailable) {
         setPdfLink(pdf);
-        speakText(`Opening ${data.volumeInfo.title}. PDF loaded. Say "Next" or "Previous" to change pages.`);
-      } else {
-        const fallback = data.volumeInfo?.description || "This book does not have a PDF version.";
-        speakText(`PDF not available. Reading description of ${data.volumeInfo.title}.`);
-        speakText(fallback);
       }
     } catch (err) {
       console.error('Error fetching book:', err);
-      speakText('Failed to load the book.');
     }
   };
-
-  const handleVoiceCommand = useCallback((command) => {
-    const lower = command.toLowerCase();
-    if (lower.includes('next')) {
-      setPageNumber((prev) => Math.min(prev + 1, numPages || prev));
-    } else if (lower.includes('previous')) {
-      setPageNumber((prev) => Math.max(prev - 1, 1));
-    } else if (lower.includes('read again')) {
-      if (book?.volumeInfo?.description) {
-        speakText(book.volumeInfo.description);
-      } else {
-        speakText(book?.volumeInfo?.title || 'Reading again.');
-      }
-    } else {
-      speakText("Say 'next' or 'previous' to flip pages.");
-    }
-  }, [book, numPages]);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -64,10 +40,6 @@ const Reader = () => {
   useEffect(() => {
     fetchBook();
   }, []);
-
-  useEffect(() => {
-    listenVoice(handleVoiceCommand);
-  }, [handleVoiceCommand]);
 
   return (
     <div className="p-4 min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white">

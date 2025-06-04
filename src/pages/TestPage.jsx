@@ -1,7 +1,6 @@
 // src/pages/TestPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { speakText, listenVoice } from '../utils/voiceUtils';
 
 const TestPage = () => {
   const { classId, subject, chapterId } = useParams();
@@ -10,7 +9,6 @@ const TestPage = () => {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isListening, setIsListening] = useState(false);
   const [testCompleted, setTestCompleted] = useState(false);
   const [score, setScore] = useState(null);
 
@@ -21,47 +19,36 @@ const TestPage = () => {
       .then(data => {
         setQuestions(data.questions);
         setIsLoading(false);
-        speakText(`Starting test for Chapter ${chapterId}. ${data.questions[0].question}`);
       })
       .catch(error => {
         console.error('Error fetching test:', error);
         setIsLoading(false);
-        speakText('Error loading test. Please try again.');
       });
   }, [classId, subject, chapterId]);
 
-  const handleAnswer = () => {
-    setIsListening(true);
-    speakText('Listening for your answer...');
+  const handleAnswer = (answer) => {
+    const newAnswers = [...answers, { 
+      q: questions[questionIndex].question, 
+      a: answer,
+      timestamp: new Date().toISOString()
+    }];
+    setAnswers(newAnswers);
     
-    listenVoice((reply) => {
-      setIsListening(false);
-      const newAnswers = [...answers, { 
-        q: questions[questionIndex].question, 
-        a: reply,
-        timestamp: new Date().toISOString()
-      }];
-      setAnswers(newAnswers);
-      
-      const nextIndex = questionIndex + 1;
-      if (nextIndex < questions.length) {
-        setQuestionIndex(nextIndex);
-        speakText(`Question ${nextIndex + 1}: ${questions[nextIndex].question}`);
-      } else {
-        handleTestCompletion();
-      }
-    });
+    const nextIndex = questionIndex + 1;
+    if (nextIndex < questions.length) {
+      setQuestionIndex(nextIndex);
+    } else {
+      handleTestCompletion();
+    }
   };
 
   const handleTestCompletion = () => {
     setTestCompleted(true);
-    speakText('Test completed. Calculating your score...');
     
     // Simulate score calculation
     setTimeout(() => {
       const calculatedScore = Math.floor(Math.random() * 100);
       setScore(calculatedScore);
-      speakText(`Your score is ${calculatedScore} out of 100.`);
     }, 2000);
   };
 
@@ -70,7 +57,6 @@ const TestPage = () => {
     setAnswers([]);
     setTestCompleted(false);
     setScore(null);
-    speakText(`Starting new test. ${questions[0].question}`);
   };
 
   const handleBackToReader = () => {
@@ -149,20 +135,17 @@ const TestPage = () => {
 
                 {/* Answer Section */}
                 <div className="flex flex-col items-center gap-4">
+                  <textarea
+                    className="w-full p-4 border rounded-lg"
+                    placeholder="Type your answer here..."
+                    rows={4}
+                  />
                   <button
-                    onClick={handleAnswer}
-                    disabled={isListening}
-                    className={`px-8 py-4 rounded-full text-lg font-semibold transition-all ${
-                      isListening
-                        ? 'bg-error text-white'
-                        : 'bg-primary text-white hover:bg-primary-dark'
-                    }`}
+                    onClick={() => handleAnswer(document.querySelector('textarea').value)}
+                    className="px-8 py-4 rounded-full text-lg font-semibold transition-all bg-primary text-white hover:bg-primary-dark"
                   >
-                    {isListening ? 'Listening...' : 'Answer Question'}
+                    Submit Answer
                   </button>
-                  {isListening && (
-                    <p className="text-secondary">Speak your answer now...</p>
-                  )}
                 </div>
 
                 {/* Previous Answers */}
@@ -188,20 +171,11 @@ const TestPage = () => {
             <h2 className="text-xl font-semibold mb-4">Test Instructions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-background rounded-lg">
-                <h3 className="font-semibold mb-2">Voice Commands</h3>
-                <ul className="text-sm text-secondary space-y-2">
-                  <li>"Answer question" - Start answering</li>
-                  <li>"Next question" - Move to next question</li>
-                  <li>"Previous question" - Go back to last question</li>
-                  <li>"End test" - Complete the test</li>
-                </ul>
-              </div>
-              <div className="p-4 bg-background rounded-lg">
                 <h3 className="font-semibold mb-2">Tips</h3>
                 <ul className="text-sm text-secondary space-y-2">
-                  <li>Speak clearly and at a moderate pace</li>
-                  <li>You can review your previous answers</li>
                   <li>Take your time to think before answering</li>
+                  <li>You can review your previous answers</li>
+                  <li>Make sure to complete all questions</li>
                   <li>You can retake the test if needed</li>
                 </ul>
               </div>

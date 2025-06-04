@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { speakText } from '../utils/voiceUtils';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,7 +23,6 @@ const Register = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
-      speakText('Passwords do not match. Please try again.');
       return;
     }
 
@@ -45,11 +43,9 @@ const Register = () => {
 
       if (!response.ok) throw new Error(data.message || 'Registration failed');
 
-      speakText('Registration successful! Please login to continue.');
       navigate('/login');
     } catch (err) {
       setError(err.message);
-      speakText('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

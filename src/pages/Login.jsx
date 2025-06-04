@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { speakText } from '../utils/voiceUtils';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,11 +31,9 @@ const Login = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      speakText('Login successful. Welcome back!');
       navigate('/home');
     } catch (err) {
       setError(err.message);
-      speakText('Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
