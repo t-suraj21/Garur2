@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Volume2,
   Book,
   FileText,
   Headphones,
@@ -41,11 +40,6 @@ const Home = () => {
 
   const features = [
     {
-      icon: Volume2,
-      title: 'Advanced Text-to-Speech',
-      description: 'High-quality voice synthesis with adjustable speed and tone'
-    },
-    {
       icon: Headphones,
       title: 'Immersive Audio',
       description: 'Spatial audio positioning for better content navigation'
@@ -76,15 +70,6 @@ const Home = () => {
                 <Book className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-white">Garur</h1>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button
-                className="p-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 transition-colors focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                aria-label="Settings"
-              >
-                <Volume2 className="w-5 h-5 text-purple-300" />
-              </button>
             </div>
           </div>
         </div>
@@ -146,7 +131,7 @@ const Home = () => {
         {/* Features Grid */}
         <div className="mb-16">
           <h3 className="text-3xl font-bold text-white text-center mb-12">Designed for Accessibility</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {features.map((feature, index) => {
               const IconComponent = feature.icon;
               return (
@@ -192,7 +177,6 @@ const Home = () => {
                 <li>Keyboard Navigation</li>
                 <li>Screen Reader Support</li>
                 <li>High Contrast Mode</li>
-                <li>Text-to-Speech</li>
               </ul>
             </div>
           </div>
