@@ -92,17 +92,8 @@ const Home = () => {
 
             {/* Top Navigation */}
             <nav className="flex items-center space-x-6 text-sm font-medium text-white">
-              <button onClick={navigateToLibrary} className="hover:text-purple-400 transition-all flex items-center gap-1">
-                <Book className="w-4 h-4" /> Library
-              </button>
-              <button onClick={navigateToTests} className="hover:text-purple-400 transition-all flex items-center gap-1">
-                <FileText className="w-4 h-4" /> Tests
-              </button>
               <button onClick={navigateToProfile} className="hover:text-purple-400 transition-all flex items-center gap-1">
                 <User className="w-4 h-4" /> Profile
-              </button>
-              <button onClick={navigateToNotebook} className="hover:text-purple-400 transition-all flex items-center gap-1">
-                <NotebookPen className="w-4 h-4" /> Notebook
               </button>
             </nav>
           </div>
