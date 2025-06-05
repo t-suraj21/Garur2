@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Book, Award, Calendar, MapPin, Phone, Edit3, Camera, Share2, Heart, MessageCircle, BookOpen, Trophy, Target, Users, TrendingUp, Star, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -13,8 +15,7 @@ const Profile = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const navigateToHome = () => {
-    // Navigation logic - replace with your routing solution
-    console.log('Navigate to home');
+    navigate('/home');
   };
 
   const openEditModal = () => {
@@ -45,17 +46,6 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Update userData with new information
-      setUserData(prev => ({
-        ...prev,
-        ...editFormData
-      }));
-      
-      // Uncomment and modify this section for actual API integration
-      /*
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5001/api/users/profile', {
         method: 'PUT',
@@ -72,8 +62,6 @@ const Profile = () => {
 
       const updatedData = await response.json();
       setUserData(updatedData);
-      */
-      
       closeEditModal();
     } catch (err) {
       setError('Failed to update profile. Please try again.');
@@ -89,11 +77,6 @@ const Profile = () => {
   const confirmLogout = async () => {
     setIsLoggingOut(true);
     try {
-      // Simulate logout delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Uncomment and modify this section for actual API integration
-      /*
       const token = localStorage.getItem('token');
       await fetch('http://localhost:5001/api/auth/logout', {
         method: 'POST',
@@ -102,18 +85,13 @@ const Profile = () => {
           'Content-Type': 'application/json'
         }
       });
-      */
       
-      // Clear local storage and redirect
-      // localStorage.removeItem('token');
-      // localStorage.removeItem('userData');
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('userData');
       
-      // For demo purposes, just show alert
-      alert('Logged out successfully!');
-      console.log('User logged out - redirect to login page');
-      
-      // Replace with your actual navigation logic
-      // window.location.href = '/login';
+      // Redirect to landing page
+      navigate('/');
       
     } catch (err) {
       setError('Failed to logout. Please try again.');
@@ -130,24 +108,9 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Simulated data for demo - replace with your API call
-        const simulatedData = {
-          name: "Alex Johnson",
-          email: "alex.johnson@student.edu",
-          phone: "+1 (555) 123-4567",
-          location: "New York, NY",
-          class: "12",
-          completedTests: 45,
-          readBooks: 28,
-          createdAt: "2024-01-15T08:00:00Z",
-          lastLogin: new Date().toISOString()
-        };
-        
-        // Uncomment and modify this section for actual API integration
-        /*
         const token = localStorage.getItem('token');
         if (!token) {
-          // Handle no token case
+          navigate('/login');
           return;
         }
 
@@ -164,25 +127,18 @@ const Profile = () => {
 
         const data = await response.json();
         setUserData(data);
-        */
-        
-        // For demo purposes, using simulated data
-        setTimeout(() => {
-          setUserData({
-            ...simulatedData,
-            bio: "Passionate student dedicated to academic excellence and continuous learning. Always eager to explore new subjects and challenge myself with advanced concepts."
-          });
-          setLoading(false);
-        }, 1000);
-        
+        setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
+        if (err.message === 'Failed to fetch user data') {
+          navigate('/login');
+        }
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (

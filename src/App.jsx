@@ -8,6 +8,8 @@ import Library from './pages/Library';
 import Reader from './pages/Reader';
 import TestPage from './pages/TestPage';
 import Profile from './pages/Profile';
+import Notebook from './pages/Notebook';
+import Dashboard from './pages/Dashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -26,7 +28,6 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/reader/book/:bookId" element={<Reader />} />
-
 
       {/* Protected Routes */}
       <Route
@@ -66,6 +67,22 @@ function App() {
         element={
           <ProtectedRoute>
             <TestPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notebook"
+        element={
+          <ProtectedRoute>
+            <Notebook />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
           </ProtectedRoute>
         }
       />

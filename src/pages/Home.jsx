@@ -14,9 +14,11 @@ const Home = () => {
   const navigate = useNavigate();
 
   const navigateToLibrary = () => navigate('/library');
-  const navigateToTests = () => navigate('/tests');
+  const navigateToTests = () => navigate('/test/class1/math/chapter1');
   const navigateToProfile = () => navigate('/profile');
   const navigateToNotebook = () => navigate('/notebook');
+  const navigateToDashboard = () => navigate('/dashboard');
+
 
   const quickActions = [
     {
@@ -34,6 +36,22 @@ const Home = () => {
       icon: FileText,
       action: navigateToTests,
       shortcut: 'Alt + T'
+    },
+    {
+      id: 'notes',
+      title: 'Notes',
+      description: 'Make Your Notes',
+      icon: FileText,
+      action: navigateToNotebook,
+      shortcut: 'Alt + N'
+    },
+    {
+      id: 'dashboard',
+      title: 'Dashboard',
+      description: 'View Your Progress',
+      icon: FileText,
+      action: navigateToDashboard,
+      shortcut: 'Alt + D'
     }
   ];
 

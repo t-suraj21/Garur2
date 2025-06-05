@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
@@ -11,6 +11,7 @@ const BASE_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 const Reader = () => {
   const { bookId } = useParams();
+  const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [pdfLink, setPdfLink] = useState('');
   const [numPages, setNumPages] = useState(null);
@@ -37,13 +38,26 @@ const Reader = () => {
     setPageNumber(1);
   };
 
+  const handleTestClick = () => {
+    // Navigate to test page with the current book's class, subject, and chapter
+    navigate(`/test/class1/math/chapter1`); // You can adjust these parameters as needed
+  };
+
   useEffect(() => {
     fetchBook();
   }, []);
 
   return (
     <div className="p-4 min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-white">
-      <h1 className="text-2xl font-bold mb-2">{book?.volumeInfo?.title || 'Book Reader'}</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">{book?.volumeInfo?.title || 'Book Reader'}</h1>
+        <button
+          onClick={handleTestClick}
+          className="px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors"
+        >
+          Take Test
+        </button>
+      </div>
 
       {pdfLink ? (
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
