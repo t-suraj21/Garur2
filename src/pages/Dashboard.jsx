@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAccessToken, refreshAccessToken } from '../utils/auth';
 import { 
   BookOpen, 
   Target, 
@@ -52,7 +53,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = getAccessToken();
         if (!token) {
           navigate('/login');
           return;
@@ -60,31 +61,59 @@ const Dashboard = () => {
 
         const response = await fetch('http://localhost:5001/api/users/profile', {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
+        if (response.status === 401) {
+          // Token expired, try to refresh
+          const newToken = await refreshAccessToken();
+          // Retry the request with new token
+          const retryResponse = await fetch('http://localhost:5001/api/users/profile', {
+            headers: {
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
 
-        const data = await response.json();
-        setUserData(data);
-        
-        // Calculate stats (this would come from your backend in a real app)
-        setStats({
-          chaptersCompleted: data.completedChapters || 0,
-          totalChapters: data.totalChapters || 0,
-          testsCompleted: data.completedTests || 0,
-          averageScore: data.averageScore || 0,
-          totalStudyTime: data.totalStudyTime || 0,
-          rank: data.rank || 0
-        });
+          if (!retryResponse.ok) {
+            throw new Error('Failed to fetch user data');
+          }
+
+          const data = await retryResponse.json();
+          setUserData(data);
+          setStats({
+            chaptersCompleted: data.completedChapters || 0,
+            totalChapters: data.totalChapters || 0,
+            testsCompleted: data.completedTests || 0,
+            averageScore: data.averageScore || 0,
+            totalStudyTime: data.totalStudyTime || 0,
+            rank: data.rank || 0
+          });
+        } else if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        } else {
+          const data = await response.json();
+          setUserData(data);
+          setStats({
+            chaptersCompleted: data.completedChapters || 0,
+            totalChapters: data.totalChapters || 0,
+            testsCompleted: data.completedTests || 0,
+            averageScore: data.averageScore || 0,
+            totalStudyTime: data.totalStudyTime || 0,
+            rank: data.rank || 0
+          });
+        }
         
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching user data:', err);
         setError(err.message);
         setLoading(false);
+        if (err.message === 'Failed to fetch user data') {
+          navigate('/login');
+        }
       }
     };
 
