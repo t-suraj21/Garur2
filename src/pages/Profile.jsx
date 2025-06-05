@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Book, Award, Calendar, MapPin, Phone, Edit3, Camera, Share2, Heart, MessageCircle, BookOpen, Trophy, Target, Users, TrendingUp, Star, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getAccessToken, refreshAccessToken, logout } from '../utils/auth';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = getAccessToken();
       const response = await fetch('http://localhost:5001/api/users/profile', {
         method: 'PUT',
         headers: {
@@ -56,12 +57,32 @@ const Profile = () => {
         body: JSON.stringify(editFormData)
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshAccessToken();
+        // Retry the request with new token
+        const retryResponse = await fetch('http://localhost:5001/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(editFormData)
+        });
 
-      const updatedData = await response.json();
-      setUserData(updatedData);
+        if (!retryResponse.ok) {
+          throw new Error('Failed to update profile');
+        }
+
+        const updatedData = await retryResponse.json();
+        setUserData(updatedData);
+      } else if (!response.ok) {
+        throw new Error('Failed to update profile');
+      } else {
+        const updatedData = await response.json();
+        setUserData(updatedData);
+      }
+      
       closeEditModal();
     } catch (err) {
       setError('Failed to update profile. Please try again.');
@@ -77,7 +98,7 @@ const Profile = () => {
   const confirmLogout = async () => {
     setIsLoggingOut(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = getAccessToken();
       await fetch('http://localhost:5001/api/auth/logout', {
         method: 'POST',
         headers: {
@@ -86,12 +107,8 @@ const Profile = () => {
         }
       });
       
-      // Clear local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('userData');
-      
-      // Redirect to landing page
-      navigate('/');
+      // Use the logout utility function
+      logout();
       
     } catch (err) {
       setError('Failed to logout. Please try again.');
@@ -108,7 +125,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = getAccessToken();
         if (!token) {
           navigate('/login');
           return;
@@ -121,12 +138,30 @@ const Profile = () => {
           }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
+        if (response.status === 401) {
+          // Token expired, try to refresh
+          const newToken = await refreshAccessToken();
+          // Retry the request with new token
+          const retryResponse = await fetch('http://localhost:5001/api/users/profile', {
+            headers: {
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
 
-        const data = await response.json();
-        setUserData(data);
+          if (!retryResponse.ok) {
+            throw new Error('Failed to fetch user data');
+          }
+
+          const data = await retryResponse.json();
+          setUserData(data);
+        } else if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        } else {
+          const data = await response.json();
+          setUserData(data);
+        }
+        
         setLoading(false);
       } catch (err) {
         setError(err.message);

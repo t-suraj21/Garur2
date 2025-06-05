@@ -10,8 +10,10 @@ import {
   BarChart2,
   CheckCircle,
   Book,
-  ArrowLeft
+  ArrowLeft,
+  Users
 } from 'lucide-react';
+import { getAccessToken, refreshAccessToken } from '../utils/auth';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,7 +36,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = getAccessToken();
         if (!token) {
           navigate('/login');
           return;
@@ -42,31 +44,63 @@ const Dashboard = () => {
 
         const response = await fetch('http://localhost:5001/api/users/profile', {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
+        if (response.status === 401) {
+          // Token expired, try to refresh
+          const newToken = await refreshAccessToken();
+          // Retry the request with new token
+          const retryResponse = await fetch('http://localhost:5001/api/users/profile', {
+            headers: {
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
 
-        const data = await response.json();
-        setUserData(data);
-        
-        // Calculate stats (this would come from your backend in a real app)
-        setStats({
-          chaptersCompleted: data.completedChapters || 0,
-          totalChapters: data.totalChapters || 0,
-          testsCompleted: data.completedTests || 0,
-          averageScore: data.averageScore || 0,
-          totalStudyTime: data.totalStudyTime || 0,
-          rank: data.rank || 0
-        });
+          if (!retryResponse.ok) {
+            throw new Error('Failed to fetch user data');
+          }
+
+          const data = await retryResponse.json();
+          setUserData(data);
+          
+          // Calculate stats
+          setStats({
+            chaptersCompleted: data.completedChapters || 0,
+            totalChapters: data.totalChapters || 0,
+            testsCompleted: data.completedTests || 0,
+            averageScore: data.averageScore || 0,
+            totalStudyTime: data.totalStudyTime || 0,
+            rank: data.rank || 0
+          });
+        } else if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        } else {
+          const data = await response.json();
+          setUserData(data);
+          
+          // Calculate stats
+          setStats({
+            chaptersCompleted: data.completedChapters || 0,
+            totalChapters: data.totalChapters || 0,
+            testsCompleted: data.completedTests || 0,
+            averageScore: data.averageScore || 0,
+            totalStudyTime: data.totalStudyTime || 0,
+            rank: data.rank || 0
+          });
+        }
         
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching user data:', err);
         setError(err.message);
         setLoading(false);
+        if (err.message === 'Failed to fetch user data') {
+          navigate('/login');
+        }
       }
     };
 
@@ -94,111 +128,111 @@ const Dashboard = () => {
   const progressPercentage = (stats.chaptersCompleted / stats.totalChapters) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="border-b border-purple-800/30 bg-black/20 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <button 
-              onClick={navigateToHome}
-              className="text-white hover:text-purple-400 transition-all flex items-center gap-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back to Home
-            </button>
-            <h1 className="text-2xl font-bold text-white">Performance Dashboard</h1>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Progress Overview */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-purple-800/30 backdrop-blur-sm">
-            <h2 className="text-xl font-semibold text-white mb-4">Study Progress</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Chapters Completed</span>
-                <span className="text-white font-semibold">{stats.chaptersCompleted}/{stats.totalChapters}</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-white mb-8">Dashboard</h1>
+        
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <BookOpen className="w-6 h-6 text-purple-400" />
               </div>
-              <div className="w-full bg-purple-900/30 rounded-full h-2">
-                <div 
-                  className="bg-purple-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${progressPercentage}%` }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Completion Rate</span>
-                <span className="text-white font-semibold">{progressPercentage.toFixed(1)}%</span>
+              <div>
+                <p className="text-gray-400 text-sm">Chapters Completed</p>
+                <p className="text-2xl font-bold text-white">{stats.chaptersCompleted}/{stats.totalChapters}</p>
               </div>
             </div>
           </div>
 
-          {/* Test Performance */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-purple-800/30 backdrop-blur-sm">
-            <h2 className="text-xl font-semibold text-white mb-4">Test Performance</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Tests Completed</span>
-                <span className="text-white font-semibold">{stats.testsCompleted}</span>
+          <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <Trophy className="w-6 h-6 text-purple-400" />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Average Score</span>
-                <span className="text-white font-semibold">{stats.averageScore}%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Rank</span>
-                <span className="text-white font-semibold">#{stats.rank}</span>
+              <div>
+                <p className="text-gray-400 text-sm">Tests Completed</p>
+                <p className="text-2xl font-bold text-white">{stats.testsCompleted}</p>
               </div>
             </div>
           </div>
 
-          {/* Study Stats */}
-          <div className="bg-white/5 rounded-2xl p-6 border border-purple-800/30 backdrop-blur-sm">
-            <h2 className="text-xl font-semibold text-white mb-4">Study Statistics</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Total Study Time</span>
-                <span className="text-white font-semibold">{Math.floor(stats.totalStudyTime / 60)}h {stats.totalStudyTime % 60}m</span>
+          <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <Target className="w-6 h-6 text-purple-400" />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Books Read</span>
-                <span className="text-white font-semibold">{userData?.readBooks || 0}</span>
+              <div>
+                <p className="text-gray-400 text-sm">Average Score</p>
+                <p className="text-2xl font-bold text-white">{stats.averageScore}%</p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-purple-300">Last Active</span>
-                <span className="text-white font-semibold">{new Date(userData?.lastLogin).toLocaleDateString()}</span>
+            </div>
+          </div>
+
+          <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <Clock className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Total Study Time</p>
+                <p className="text-2xl font-bold text-white">{Math.floor(stats.totalStudyTime / 60)}h {stats.totalStudyTime % 60}m</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <TrendingUp className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Current Rank</p>
+                <p className="text-2xl font-bold text-white">#{stats.rank}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <div className="bg-purple-500/20 p-3 rounded-lg">
+                <Users className="w-6 h-6 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Study Groups</p>
+                <p className="text-2xl font-bold text-white">3</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold text-white mb-6">Recent Activity</h2>
-          <div className="bg-white/5 rounded-2xl p-6 border border-purple-800/30 backdrop-blur-sm">
-            <div className="space-y-4">
-              {/* This would be populated with actual activity data */}
-              <div className="flex items-center gap-4 text-purple-300">
-                <BookOpen className="w-5 h-5" />
-                <span>Completed Chapter 5: Mathematics</span>
-                <span className="ml-auto text-sm">2 hours ago</span>
+        <div className="bg-white/5 rounded-xl p-6 border border-purple-800/30 backdrop-blur-sm">
+          <h2 className="text-xl font-semibold text-white mb-4">Recent Activity</h2>
+          <div className="space-y-4">
+            {userData?.studyHistory?.slice(0, 5).map((activity, index) => (
+              <div key={index} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-purple-500/20 p-2 rounded-lg">
+                    <BookOpen className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{activity.chapterName}</p>
+                    <p className="text-gray-400 text-sm">{activity.subject}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-white">{activity.timeSpent} minutes</p>
+                  <p className="text-gray-400 text-sm">
+                    {new Date(activity.completedAt).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-4 text-purple-300">
-                <Target className="w-5 h-5" />
-                <span>Scored 85% in Science Test</span>
-                <span className="ml-auto text-sm">Yesterday</span>
-              </div>
-              <div className="flex items-center gap-4 text-purple-300">
-                <Book className="w-5 h-5" />
-                <span>Started reading "Physics Fundamentals"</span>
-                <span className="ml-auto text-sm">2 days ago</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

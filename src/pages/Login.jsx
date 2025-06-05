@@ -1,127 +1,128 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { setTokens, isAuthenticated } from '../utils/auth';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/home', { replace: true });
+    if (isAuthenticated()) {
+      navigate('/home');
     }
   }, [navigate]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       const response = await fetch('http://localhost:5001/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
       });
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || 'Login failed');
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to login');
+      }
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      navigate('/home', { replace: true });
+      setTokens(data.accessToken, data.refreshToken);
+      navigate('/home');
     } catch (err) {
-      setError(err.message);
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to login. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-black p-4">
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/10">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-purple-300">Login to continue your journey</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white/5 rounded-xl p-8 border border-purple-800/30 backdrop-blur-sm">
+          <h1 className="text-3xl font-bold text-white mb-8 text-center">Welcome Back</h1>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-400 text-red-300 px-4 py-2 mb-4 rounded-lg animate-pulse text-sm text-center">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-purple-200 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full p-3 rounded-xl bg-white/10 text-white placeholder-purple-300 border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="yourname@example.com"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-white/5 border border-purple-800/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                placeholder="Enter your email"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-purple-200 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full p-3 rounded-xl bg-white/10 text-white placeholder-purple-300 border border-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="••••••••"
-            />
-          </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-white/5 border border-purple-800/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                placeholder="Enter your password"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-3 rounded-xl font-semibold text-white transition-all ${
-              isLoading
-                ? 'bg-purple-600/50 cursor-wait'
-                : 'bg-purple-600 hover:bg-purple-700'
-            }`}
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                <span>Logging in...</span>
-              </div>
-            ) : (
-              'Login'
-            )}
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors"
+            >
+              Sign In
+            </button>
+          </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-purple-300 text-sm">
+          <p className="mt-6 text-center text-gray-400">
             Don't have an account?{' '}
-            <Link to="/register" className="text-purple-400 hover:underline font-medium">
-              Register here
-            </Link>
+            <button
+              onClick={() => navigate('/register')}
+              className="text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              Sign up
+            </button>
           </p>
         </div>
       </div>

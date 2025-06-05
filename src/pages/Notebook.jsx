@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Book, Plus, Trash2, Edit2, Save, ArrowLeft, Calendar, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getAccessToken, refreshAccessToken } from '../utils/auth';
 
 const Notebook = () => {
   const navigate = useNavigate();
@@ -12,29 +13,59 @@ const Notebook = () => {
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchNotes = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/notes', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch notes');
-      
-      const data = await response.json();
-      setNotes(data);
-    } catch (err) {
-      setError('Failed to load notes. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchNotes();
   }, []);
+
+  const fetchNotes = async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch('http://localhost:5001/api/notes', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshAccessToken();
+        // Retry the request with new token
+        const retryResponse = await fetch('http://localhost:5001/api/notes', {
+          headers: {
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!retryResponse.ok) {
+          throw new Error('Failed to fetch notes');
+        }
+
+        const data = await retryResponse.json();
+        setNotes(data);
+      } else if (!response.ok) {
+        throw new Error('Failed to fetch notes');
+      } else {
+        const data = await response.json();
+        setNotes(data);
+      }
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching notes:', err);
+      setError(err.message);
+      setLoading(false);
+      if (err.message === 'Failed to fetch notes') {
+        navigate('/login');
+      }
+    }
+  };
 
   const navigateToHome = () => {
     navigate('/home');
@@ -46,43 +77,89 @@ const Notebook = () => {
   };
 
   const handleSaveNote = async () => {
+    if (!newNote.title.trim() || !newNote.content.trim()) return;
+
     try {
-      const token = localStorage.getItem('token');
+      const token = getAccessToken();
       const response = await fetch('http://localhost:5001/api/notes', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(newNote)
       });
 
-      if (!response.ok) throw new Error('Failed to save note');
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshAccessToken();
+        // Retry the request with new token
+        const retryResponse = await fetch('http://localhost:5001/api/notes', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newNote)
+        });
 
-      const savedNote = await response.json();
-      setNotes([savedNote, ...notes]);
+        if (!retryResponse.ok) {
+          throw new Error('Failed to save note');
+        }
+
+        const data = await retryResponse.json();
+        setNotes([data, ...notes]);
+      } else if (!response.ok) {
+        throw new Error('Failed to save note');
+      } else {
+        const data = await response.json();
+        setNotes([data, ...notes]);
+      }
+
       setIsAddingNote(false);
       setNewNote({ title: '', content: '' });
     } catch (err) {
-      setError('Failed to save note. Please try again.');
+      console.error('Error saving note:', err);
+      setError(err.message);
     }
   };
 
   const handleDeleteNote = async (noteId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getAccessToken();
       const response = await fetch(`http://localhost:5001/api/notes/${noteId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
-      if (!response.ok) throw new Error('Failed to delete note');
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshAccessToken();
+        // Retry the request with new token
+        const retryResponse = await fetch(`http://localhost:5001/api/notes/${noteId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-      setNotes(notes.filter(note => note._id !== noteId));
+        if (!retryResponse.ok) {
+          throw new Error('Failed to delete note');
+        }
+
+        setNotes(notes.filter(note => note._id !== noteId));
+      } else if (!response.ok) {
+        throw new Error('Failed to delete note');
+      } else {
+        setNotes(notes.filter(note => note._id !== noteId));
+      }
     } catch (err) {
-      setError('Failed to delete note. Please try again.');
+      console.error('Error deleting note:', err);
+      setError(err.message);
     }
   };
 
@@ -92,25 +169,50 @@ const Notebook = () => {
   };
 
   const handleUpdateNote = async () => {
+    if (!newNote.title.trim() || !newNote.content.trim()) return;
+
     try {
-      const token = localStorage.getItem('token');
+      const token = getAccessToken();
       const response = await fetch(`http://localhost:5001/api/notes/${editingNoteId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(newNote)
       });
 
-      if (!response.ok) throw new Error('Failed to update note');
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshAccessToken();
+        // Retry the request with new token
+        const retryResponse = await fetch(`http://localhost:5001/api/notes/${editingNoteId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newNote)
+        });
 
-      const updatedNote = await response.json();
-      setNotes(notes.map(note => note._id === editingNoteId ? updatedNote : note));
+        if (!retryResponse.ok) {
+          throw new Error('Failed to update note');
+        }
+
+        const updatedNote = await retryResponse.json();
+        setNotes(notes.map(note => note._id === editingNoteId ? updatedNote : note));
+      } else if (!response.ok) {
+        throw new Error('Failed to update note');
+      } else {
+        const updatedNote = await response.json();
+        setNotes(notes.map(note => note._id === editingNoteId ? updatedNote : note));
+      }
+
       setEditingNoteId(null);
       setNewNote({ title: '', content: '' });
     } catch (err) {
-      setError('Failed to update note. Please try again.');
+      console.error('Error updating note:', err);
+      setError(err.message);
     }
   };
 
@@ -362,61 +464,55 @@ const Notebook = () => {
           )}
         </div>
       </main>
+
+      <style jsx>{`
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out forwards;
+          opacity: 0;
+        }
+        
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
+        .line-clamp-4 {
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 };
-
-// Add styles using a regular style tag
-const styles = `
-  @keyframes slide-down {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .animate-slide-down {
-    animation: slide-down 0.3s ease-out;
-  }
-  
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-    opacity: 0;
-  }
-  
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .line-clamp-4 {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-`;
-
-// Add the styles to the document
-const styleSheet = document.createElement("style");
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
 
 export default Notebook;

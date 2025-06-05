@@ -10,10 +10,11 @@ import TestPage from './pages/TestPage';
 import Profile from './pages/Profile';
 import Notebook from './pages/Notebook';
 import Dashboard from './pages/Dashboard';
+import { getAccessToken } from './utils/auth';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const token = getAccessToken();
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -22,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
 
 // Public Route Component (for login/register)
 const PublicRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const token = getAccessToken();
   if (token) {
     return <Navigate to="/home" replace />;
   }
