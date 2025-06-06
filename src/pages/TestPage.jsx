@@ -27,6 +27,7 @@ const TestPage = () => {
   const [score, setScore] = useState(null);
   const [timeLeft, setTimeLeft] = useState(3600); // 1 hour in seconds
   const [testStarted, setTestStarted] = useState(false);
+  const [userData] = useState({ name: 'Test User' }); // Placeholder, replace with actual user data if available
 
   // Voice recognition setup
   useEffect(() => {
@@ -261,30 +262,32 @@ const TestPage = () => {
   if (!testStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black p-2 sm:p-6">
-        {/* Consistent Sticky Header */}
-        <header className="border-b border-purple-800/30 bg-black/20 backdrop-blur-sm sticky top-0 z-50 w-full">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={navigateToHome}
-                className="text-white hover:text-purple-400 transition-all flex items-center gap-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Back to Home
-              </button>
-              <div className="h-6 w-px bg-purple-500/30"></div>
-              <h1 className="text-2xl font-bold text-white">Chapter Test</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="text-white hover:text-purple-400 transition-colors">
-                <Bell className="w-5 h-5" />
-              </button>
-              <button className="text-white hover:text-purple-400 transition-colors">
-                <Settings className="w-5 h-5" />
-              </button>
-              <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                <User className="w-4 h-4 text-purple-300" />
-                <span className="text-white text-sm">Test User</span>
+        {/* Enhanced Header (exactly like Dashboard) */}
+        <header className="border-b border-purple-800/30 bg-black/20 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={navigateToHome}
+                  className="text-white hover:text-purple-400 transition-all flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  Back to Home
+                </button>
+                <div className="h-6 w-px bg-purple-500/30"></div>
+                <h1 className="text-2xl font-bold text-white">Chapter Test</h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <button className="text-white hover:text-purple-400 transition-colors">
+                  <Bell className="w-5 h-5" />
+                </button>
+                <button className="text-white hover:text-purple-400 transition-colors">
+                  <Settings className="w-5 h-5" />
+                </button>
+                <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
+                  <User className="w-4 h-4 text-purple-300" />
+                  <span className="text-white text-sm">{userData?.name || 'Test User'}</span>
+                </div>
               </div>
             </div>
           </div>

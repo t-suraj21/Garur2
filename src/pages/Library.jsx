@@ -76,6 +76,7 @@ const Library = () => {
   const [bookmarks, setBookmarks] = useState(() => {
     return JSON.parse(localStorage.getItem('bookmarks') || '[]');
   });
+  const [userData, setUserData] = useState({ name: 'Library User' });
 
   // Voice recognition setup
   useEffect(() => {
@@ -258,6 +259,34 @@ const Library = () => {
 
   return (
     <>
+      {/* Consistent Sticky Header */}
+      <header className="border-b border-purple-800/30 bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900/80 backdrop-blur-sm sticky top-0 z-50 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={navigateToHome}
+              className="text-white hover:text-purple-400 transition-all flex items-center gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back to Home
+            </button>
+            <div className="h-6 w-px bg-purple-500/30"></div>
+            <h1 className="text-2xl font-bold text-white">Digital Library</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="text-white hover:text-purple-400 transition-colors">
+              <Bell className="w-5 h-5" />
+            </button>
+            <button className="text-white hover:text-purple-400 transition-colors">
+              <Settings className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
+              <User className="w-4 h-4 text-purple-300" />
+              <span className="text-white text-sm">{userData?.name || 'Library User'}</span>
+            </div>
+          </div>
+        </div>
+      </header>
       <div className="min-h-screen w-full px-2 sm:px-4 md:px-8 py-6 sm:py-10 flex flex-col items-center justify-start bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden relative">
         {/* Animated Background Elements */}
         <div className="fixed inset-0 pointer-events-none z-0">
@@ -265,279 +294,237 @@ const Library = () => {
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" style={{animation: 'spin 20s linear infinite'}}></div>
         </div>
-        {/* Header Section */}
-        <header className="border-b border-purple-800/30 bg-black/20 backdrop-blur-sm sticky top-0 z-50 w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={navigateToHome}
-                className="text-white hover:text-purple-400 transition-all flex items-center gap-2"
+        {/* Search Section */}
+        <section className="flex flex-col items-center mb-4 sm:mb-6 w-full relative z-10">
+          <div className="w-full max-w-2xl bg-[#1a1333]/80 rounded-2xl shadow-lg p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 items-center">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
+              <select
+                value={selectedBoard}
+                onChange={handleBoardChange}
+                className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base relative pr-8"
               >
-                <ArrowLeft className="w-5 h-5" />
-                Back to Home
-              </button>
-              <div className="h-6 w-px bg-purple-500/30"></div>
-              <h1 className="text-2xl font-bold text-white">Digital Library</h1>
+                <option value="">Board</option>
+                {BOARDS.map(board => <option key={board} value={board}>{board}</option>)}
+              </select>
+              <select
+                value={selectedClass}
+                onChange={handleClassChange}
+                className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base mt-2 sm:mt-0"
+              >
+                <option value="">Class</option>
+                {CLASSES.map(cls => <option key={cls} value={cls}>{cls}</option>)}
+              </select>
             </div>
-            <div className="flex items-center gap-4">
-              <button className="text-white hover:text-purple-400 transition-colors">
-                <Bell className="w-5 h-5" />
-              </button>
-              <button className="text-white hover:text-purple-400 transition-colors">
-                <Settings className="w-5 h-5" />
-              </button>
-              <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                <User className="w-4 h-4 text-purple-300" />
-                <span className="text-white text-sm">Library User</span>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
+              <select
+                value={selectedSubject}
+                onChange={handleSubjectChange}
+                className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base"
+              >
+                <option value="">Subject</option>
+                {SUBJECTS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+              </select>
+              <select
+                value={selectedBookType}
+                onChange={handleBookTypeChange}
+                className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base mt-2 sm:mt-0"
+              >
+                <option value="">Book Type</option>
+                {BOOK_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col xs:flex-row w-full items-stretch xs:items-center gap-2 mt-2">
+              <input
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                className="w-full flex-1 px-3 sm:px-6 py-2 sm:py-4 rounded-t-xl xs:rounded-l-2xl xs:rounded-t-none border-none focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/10 text-white shadow-lg placeholder:text-purple-300 text-sm sm:text-lg min-w-0 rounded-b-none xs:rounded-b-2xl backdrop-blur-md"
+                placeholder="Search by board, class, subject, or book type"
+                aria-label="Search books"
+              />
+              <div className="flex flex-row w-full xs:w-auto mt-2 xs:mt-0">
+                <button
+                  type="button"
+                  onClick={handleMicClick}
+                  className={`w-1/2 xs:w-14 h-[44px] sm:h-[56px] flex items-center justify-center bg-gradient-to-r from-purple-600 to-blue-600 border-none focus:outline-none transition-all duration-200
+                    rounded-bl-xl xs:rounded-bl-none xs:rounded-tr-2xl
+                    rounded-br-none xs:rounded-br-none
+                    rounded-tl-none xs:rounded-tl-none
+                    ${isListening ? 'animate-pulse ring-2 ring-purple-400' : ''}`}
+                  aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+                >
+                  <Mic className="w-5 h-5 text-white" />
+                </button>
+                <button
+                  onClick={handleSearch}
+                  className="w-1/2 xs:w-auto px-4 sm:px-8 h-[44px] sm:h-[56px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold text-sm sm:text-lg transition shadow-xl hover:shadow-purple-500/25 border-none
+                    rounded-br-xl xs:rounded-br-2xl
+                    rounded-bl-none xs:rounded-bl-none
+                    rounded-tr-none xs:rounded-tr-none
+                    rounded-tl-none xs:rounded-tl-none"
+                  aria-label="Search"
+                >
+                  Search
+                </button>
               </div>
             </div>
+            <p className="mt-2 text-xs sm:text-sm text-purple-200 text-center">
+              <span className="inline-flex items-center gap-1 bg-[#2a0845] px-2 sm:px-3 py-1 rounded-full border border-[#6441a5] text-purple-200 text-xs font-medium shadow">Alt + S</span> to search
+            </p>
           </div>
-        </header>
-        {/* Language Bar */}
-        <div className="w-full flex justify-center z-10 relative">
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="px-5 py-2 rounded-full border-2 border-purple-600 bg-[#1a1333] text-white font-medium focus:ring-2 focus:ring-purple-400 outline-none transition-all duration-200 shadow hover:bg-[#2a0845] appearance-none mt-2 mb-2"
-            style={{minWidth: '140px', maxWidth: '180px'}}>
-            {LANGUAGES.map(lang => (
-              <option key={lang.code} value={lang.code}>{lang.name}</option>
-            ))}
-          </select>
-        </div>
-        <main className="w-full max-w-7xl mx-auto z-10">
-          {/* Search Section */}
-          <section className="flex flex-col items-center mb-4 sm:mb-6 w-full relative z-10">
-            <div className="w-full max-w-2xl bg-[#1a1333]/80 rounded-2xl shadow-lg p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 items-center">
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
-                <select
-                  value={selectedBoard}
-                  onChange={handleBoardChange}
-                  className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base relative pr-8"
-                >
-                  <option value="">Board</option>
-                  {BOARDS.map(board => <option key={board} value={board}>{board}</option>)}
-                </select>
-                <select
-                  value={selectedClass}
-                  onChange={handleClassChange}
-                  className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base mt-2 sm:mt-0"
-                >
-                  <option value="">Class</option>
-                  {CLASSES.map(cls => <option key={cls} value={cls}>{cls}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full">
-                <select
-                  value={selectedSubject}
-                  onChange={handleSubjectChange}
-                  className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base"
-                >
-                  <option value="">Subject</option>
-                  {SUBJECTS.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                </select>
-                <select
-                  value={selectedBookType}
-                  onChange={handleBookTypeChange}
-                  className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-[#1a1333] text-white border border-purple-600 focus:ring-2 focus:ring-purple-400 shadow-lg backdrop-blur-md hover:bg-[#2a0845] transition-all appearance-none text-sm sm:text-base mt-2 sm:mt-0"
-                >
-                  <option value="">Book Type</option>
-                  {BOOK_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col xs:flex-row w-full items-stretch xs:items-center gap-2 mt-2">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  className="w-full flex-1 px-3 sm:px-6 py-2 sm:py-4 rounded-t-xl xs:rounded-l-2xl xs:rounded-t-none border-none focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/10 text-white shadow-lg placeholder:text-purple-300 text-sm sm:text-lg min-w-0 rounded-b-none xs:rounded-b-2xl backdrop-blur-md"
-                  placeholder="Search by board, class, subject, or book type"
-                  aria-label="Search books"
-                />
-                <div className="flex flex-row w-full xs:w-auto mt-2 xs:mt-0">
-                  <button
-                    type="button"
-                    onClick={handleMicClick}
-                    className={`w-1/2 xs:w-14 h-[44px] sm:h-[56px] flex items-center justify-center bg-gradient-to-r from-purple-600 to-blue-600 border-none focus:outline-none transition-all duration-200
-                      rounded-bl-xl xs:rounded-bl-none xs:rounded-tr-2xl
-                      rounded-br-none xs:rounded-br-none
-                      rounded-tl-none xs:rounded-tl-none
-                      ${isListening ? 'animate-pulse ring-2 ring-purple-400' : ''}`}
-                    aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
-                  >
-                    <Mic className="w-5 h-5 text-white" />
-                  </button>
-                  <button
-                    onClick={handleSearch}
-                    className="w-1/2 xs:w-auto px-4 sm:px-8 h-[44px] sm:h-[56px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold text-sm sm:text-lg transition shadow-xl hover:shadow-purple-500/25 border-none
-                      rounded-br-xl xs:rounded-br-2xl
-                      rounded-bl-none xs:rounded-bl-none
-                      rounded-tr-none xs:rounded-tr-none
-                      rounded-tl-none xs:rounded-tl-none"
-                    aria-label="Search"
-                  >
-                    Search
-                  </button>
-                </div>
-              </div>
-              <p className="mt-2 text-xs sm:text-sm text-purple-200 text-center">
-                <span className="inline-flex items-center gap-1 bg-[#2a0845] px-2 sm:px-3 py-1 rounded-full border border-[#6441a5] text-purple-200 text-xs font-medium shadow">Alt + S</span> to search
-              </p>
-            </div>
-          </section>
+        </section>
 
-          {/* Trending Now Section */}
-          {trendingBooks.length > 0 && (
-            <section className="mb-8 sm:mb-10 relative z-10">
-              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
-                <span className="inline-block w-2 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full mr-2"></span>
-                Trending Now
-              </h2>
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-2">
-                {trendingBooks.map((book) => (
-                  <div
-                    key={book.id}
-                    onClick={() => navigate(`/reader/book/${book.id}`)}
-                    className="group bg-white/5 p-4 rounded-xl border border-white/10 hover:border-pink-400 transition-all cursor-pointer shadow-lg hover:scale-[1.03] duration-200 flex items-center gap-4 backdrop-blur-md"
-                    tabIndex={0}
-                  >
+        {/* Trending Now Section */}
+        {trendingBooks.length > 0 && (
+          <section className="mb-8 sm:mb-10 relative z-10">
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+              <span className="inline-block w-2 h-6 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full mr-2"></span>
+              Trending Now
+            </h2>
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-2">
+              {trendingBooks.map((book) => (
+                <div
+                  key={book.id}
+                  onClick={() => navigate(`/reader/book/${book.id}`)}
+                  className="group bg-white/5 p-4 rounded-xl border border-white/10 hover:border-pink-400 transition-all cursor-pointer shadow-lg hover:scale-[1.03] duration-200 flex items-center gap-4 backdrop-blur-md"
+                  tabIndex={0}
+                >
+                  {book.thumbnail && (
+                    <img
+                      src={book.thumbnail}
+                      alt={book.title}
+                      className="w-16 h-20 object-cover rounded-lg shadow"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
+                    <p className="text-purple-300 text-sm mb-1">{book.authors?.join(', ')}</p>
+                    <span className="inline-block bg-pink-600/20 text-pink-400 text-xs px-2 py-1 rounded-full font-medium">Trending</span>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-pink-400 group-hover:translate-x-1 transition-transform" />
+                </div>
+              ))}
+            </div>
+            <div className="h-0.5 bg-gradient-to-r from-pink-500/30 via-purple-500/20 to-transparent rounded-full my-4 sm:my-6" />
+          </section>
+        )}
+
+        {/* Continue Reading Section */}
+        {readingHistory.length > 0 && (
+          <section className="mb-8 sm:mb-10 relative z-10">
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+              <History className="w-6 h-6 text-purple-400" />
+              Continue Reading
+            </h2>
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+              {readingHistory.map((book) => (
+                <div
+                  key={book.id}
+                  onClick={() => navigate(`/reader/book/${book.id}`)}
+                  className="group bg-white/5 p-4 rounded-xl border border-white/10 hover:border-purple-400 transition-all cursor-pointer shadow hover:scale-[1.03] duration-200 backdrop-blur-md"
+                  tabIndex={0}
+                >
+                  <div className="flex items-center gap-4">
                     {book.thumbnail && (
                       <img
                         src={book.thumbnail}
                         alt={book.title}
-                        className="w-16 h-20 object-cover rounded-lg shadow"
+                        className="w-16 h-20 object-cover rounded-lg"
                       />
                     )}
                     <div className="flex-1">
-                      <h3 className="text-white font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
-                      <p className="text-purple-300 text-sm mb-1">{book.authors?.join(', ')}</p>
-                      <span className="inline-block bg-pink-600/20 text-pink-400 text-xs px-2 py-1 rounded-full font-medium">Trending</span>
+                      <h3 className="text-white font-medium text-base line-clamp-2">{book.title}</h3>
+                      <p className="text-purple-300 text-xs">{book.authors?.join(', ')}</p>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-pink-400 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                ))}
-              </div>
-              <div className="h-0.5 bg-gradient-to-r from-pink-500/30 via-purple-500/20 to-transparent rounded-full my-4 sm:my-6" />
-            </section>
-          )}
-
-          {/* Continue Reading Section */}
-          {readingHistory.length > 0 && (
-            <section className="mb-8 sm:mb-10 relative z-10">
-              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
-                <History className="w-6 h-6 text-purple-400" />
-                Continue Reading
-              </h2>
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-                {readingHistory.map((book) => (
-                  <div
-                    key={book.id}
-                    onClick={() => navigate(`/reader/book/${book.id}`)}
-                    className="group bg-white/5 p-4 rounded-xl border border-white/10 hover:border-purple-400 transition-all cursor-pointer shadow hover:scale-[1.03] duration-200 backdrop-blur-md"
-                    tabIndex={0}
-                  >
-                    <div className="flex items-center gap-4">
-                      {book.thumbnail && (
-                        <img
-                          src={book.thumbnail}
-                          alt={book.title}
-                          className="w-16 h-20 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="text-white font-medium text-base line-clamp-2">{book.title}</h3>
-                        <p className="text-purple-300 text-xs">{book.authors?.join(', ')}</p>
-                      </div>
-                      <ArrowRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="h-0.5 bg-gradient-to-r from-purple-500/30 via-purple-500/10 to-transparent rounded-full my-4 sm:my-6" />
-            </section>
-          )}
-
-          {/* Books Grid */}
-          {loading ? (
-            <div className="text-center text-base sm:text-lg font-medium text-purple-100">
-              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
-              Loading books...
-            </div>
-          ) : books.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 sm:py-16">
-              <Globe className="w-12 h-12 sm:w-16 sm:h-16 text-purple-400 mb-4" />
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">No Results Found</h3>
-              <p className="text-purple-200 mb-4">Try changing your search or filters.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-8">
-              {books.map((book) => {
-                const viewability = book.accessInfo?.viewability;
-                const isAvailable = viewability && (viewability === 'PARTIAL' || viewability === 'ALL_PAGES' || viewability === 'FULL_PUBLIC_DOMAIN');
-                return (
-                <div
-                  key={book.id}
-                    className="group bg-white/10 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(58,0,128,0.25)] border border-white/10 hover:border-purple-400 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between h-[370px] w-full hover:scale-[1.03] backdrop-blur-md"
-                    onClick={() => handleBookClick(book)}
-                    tabIndex={0}
-                >
-                  {/* Title and Author at the top */}
-                  <div className="w-full mb-2">
-                    <h3 className="text-xl font-bold text-white text-left mb-1 line-clamp-2">{book.volumeInfo.title}</h3>
-                    <p className="text-md text-purple-200 text-left mb-2 line-clamp-1">{book.volumeInfo.authors?.join(', ') || 'Unknown Author'}</p>
-                  </div>
-                  {/* Book Cover */}
-                  <div className="flex flex-col items-center w-full mb-4 flex-1 justify-center">
-                    {book.volumeInfo.imageLinks?.thumbnail && (
-                      <img
-                        src={book.volumeInfo.imageLinks.thumbnail}
-                        alt={book.volumeInfo.title}
-                        className="w-24 h-32 object-contain rounded-xl mb-2 shadow-lg border border-[#6a3093] bg-white"
-                      />
-                    )}
-                  </div>
-                  {/* Availability and Buttons */}
-                  <div className="flex flex-row items-center justify-center gap-2 mb-2 w-full">
-                    {isAvailable ? (
-                      <span className="inline-flex items-center gap-1 bg-green-700/20 text-green-400 px-2 py-1 rounded-full text-xs font-semibold">
-                        ● Available
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 bg-red-700/20 text-red-400 px-2 py-1 rounded-full text-xs font-semibold">
-                        ● Unavailable
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-3 mt-auto w-full">
-                    <span className="inline-flex items-center gap-1 bg-[#2a0845] px-3 py-1 rounded-full border border-[#6441a5] text-purple-200 text-xs font-medium shadow">Alt + L</span>
-                    <button
-                        className="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition shadow-xl hover:shadow-purple-500/25"
-                        onClick={e => { e.stopPropagation(); handleReadAloud(book); }}
-                        aria-label="TTS Read"
-                      >
-                        <Volume2 className="w-5 h-5 text-white" />
-                      </button>
-                      <button
-                        className="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition shadow-xl hover:shadow-purple-500/25"
-                        onClick={e => { e.stopPropagation(); handleBookmark(book); }}
-                        aria-label="Bookmark"
-                      >
-                        <Bookmark className={`w-5 h-5 ${bookmarks.includes(book.id) ? 'text-yellow-400' : 'text-white'}`} />
-                      </button>
-                      <button
-                        className="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition shadow-xl hover:shadow-purple-500/25"
-                        onClick={e => { e.stopPropagation(); handleExplain(book); }}
-                        aria-label="Explain This"
-                      >
-                        <Info className="w-5 h-5 text-white" />
-                      </button>
+                    <ArrowRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
-                );
-              })}
+              ))}
             </div>
-          )}
-        </main>
+            <div className="h-0.5 bg-gradient-to-r from-purple-500/30 via-purple-500/10 to-transparent rounded-full my-4 sm:my-6" />
+          </section>
+        )}
+
+        {/* Books Grid */}
+        {loading ? (
+          <div className="text-center text-base sm:text-lg font-medium text-purple-100">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+            Loading books...
+          </div>
+        ) : books.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 sm:py-16">
+            <Globe className="w-12 h-12 sm:w-16 sm:h-16 text-purple-400 mb-4" />
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">No Results Found</h3>
+            <p className="text-purple-200 mb-4">Try changing your search or filters.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-8">
+            {books.map((book) => {
+              const viewability = book.accessInfo?.viewability;
+              const isAvailable = viewability && (viewability === 'PARTIAL' || viewability === 'ALL_PAGES' || viewability === 'FULL_PUBLIC_DOMAIN');
+              return (
+              <div
+                key={book.id}
+                  className="group bg-white/10 p-8 rounded-3xl shadow-[0_8px_32px_0_rgba(58,0,128,0.25)] border border-white/10 hover:border-purple-400 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between h-[370px] w-full hover:scale-[1.03] backdrop-blur-md"
+                  onClick={() => handleBookClick(book)}
+                  tabIndex={0}
+              >
+                {/* Title and Author at the top */}
+                <div className="w-full mb-2">
+                  <h3 className="text-xl font-bold text-white text-left mb-1 line-clamp-2">{book.volumeInfo.title}</h3>
+                  <p className="text-md text-purple-200 text-left mb-2 line-clamp-1">{book.volumeInfo.authors?.join(', ') || 'Unknown Author'}</p>
+                </div>
+                {/* Book Cover */}
+                <div className="flex flex-col items-center w-full mb-4 flex-1 justify-center">
+                  {book.volumeInfo.imageLinks?.thumbnail && (
+                    <img
+                      src={book.volumeInfo.imageLinks.thumbnail}
+                      alt={book.volumeInfo.title}
+                      className="w-24 h-32 object-contain rounded-xl mb-2 shadow-lg border border-[#6a3093] bg-white"
+                    />
+                  )}
+                </div>
+                {/* Availability and Buttons */}
+                <div className="flex flex-row items-center justify-center gap-2 mb-2 w-full">
+                  {isAvailable ? (
+                    <span className="inline-flex items-center gap-1 bg-green-700/20 text-green-400 px-2 py-1 rounded-full text-xs font-semibold">
+                      ● Available
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-red-700/20 text-red-400 px-2 py-1 rounded-full text-xs font-semibold">
+                      ● Unavailable
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-row items-center justify-center gap-3 mt-auto w-full">
+                  <span className="inline-flex items-center gap-1 bg-[#2a0845] px-3 py-1 rounded-full border border-[#6441a5] text-purple-200 text-xs font-medium shadow">Alt + L</span>
+                  <button
+                      className="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition shadow-xl hover:shadow-purple-500/25"
+                      onClick={e => { e.stopPropagation(); handleReadAloud(book); }}
+                      aria-label="TTS Read"
+                    >
+                      <Volume2 className="w-5 h-5 text-white" />
+                    </button>
+                    <button
+                      className="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition shadow-xl hover:shadow-purple-500/25"
+                      onClick={e => { e.stopPropagation(); handleBookmark(book); }}
+                      aria-label="Bookmark"
+                    >
+                      <Bookmark className={`w-5 h-5 ${bookmarks.includes(book.id) ? 'text-yellow-400' : 'text-white'}`} />
+                    </button>
+                    <button
+                      className="p-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition shadow-xl hover:shadow-purple-500/25"
+                      onClick={e => { e.stopPropagation(); handleExplain(book); }}
+                      aria-label="Explain This"
+                    >
+                      <Info className="w-5 h-5 text-white" />
+                    </button>
+                </div>
+              </div>
+              );
+            })}
+          </div>
+        )}
       </div>
       <style>{`
         select::-ms-expand { display: none; }
