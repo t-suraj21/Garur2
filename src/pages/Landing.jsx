@@ -31,7 +31,7 @@ const Landing = () => {
 
   const testimonials = [
     {
-      content: 'Blind Edu transformed my learning experience. The navigation is incredibly intuitive.',
+      content: 'Garur transformed my learning experience. The navigation is incredibly intuitive.',
       author: 'Sarah Johnson',
       role: 'Student',
       rating: 5
@@ -45,7 +45,7 @@ const Landing = () => {
   ];
 
   const stats = [
-    { icon: Users, value: '10,000+', label: 'Active Learners' },
+    { icon: Users, value: '0(Counting)', label: 'Active Learners' },
     { icon: Book, value: '5,000+', label: 'Resources' },
     { icon: Award, value: '98%', label: 'Satisfaction Rate' },
     { icon: Zap, value: '24/7', label: 'Support' }
@@ -236,9 +236,18 @@ const Landing = () => {
                 Resources
               </h4>
               <ul className="space-y-3">
-                {['Help Center', 'Documentation', 'Community', 'Blog'].map((item, i) => (
-                  <li key={i} className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">{item}</li>
-                ))}
+                <li>
+                  <a href="/documentation" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Documentation</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Help Center</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Community</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Blog</a>
+                </li>
               </ul>
             </div>
             <div>
@@ -247,9 +256,18 @@ const Landing = () => {
                 Company
               </h4>
               <ul className="space-y-3">
-                {['About Us', 'Contact', 'Privacy Policy', 'Terms of Service'].map((item, i) => (
-                  <li key={i} className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">{item}</li>
-                ))}
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">About Us</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Contact</a>
+                </li>
+                <li>
+                  <a href="/privacy-policy" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Privacy Policy</a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-purple-300 transition-colors cursor-pointer">Terms of Service</a>
+                </li>
               </ul>
             </div>
             <div>

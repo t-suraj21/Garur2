@@ -207,6 +207,117 @@ const Home = () => {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-purple-800/30 bg-black/20 backdrop-blur-sm">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
+            {/* Company Info */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                  <Book className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Garur</h3>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Empowering education through accessible learning solutions for everyone.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li>
+                  <button onClick={navigateToLibrary} className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Digital Library
+                  </button>
+                </li>
+                <li>
+                  <button onClick={navigateToTests} className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Tests
+                  </button>
+                </li>
+                <li>
+                  <button onClick={navigateToNotebook} className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Notebook
+                  </button>
+                </li>
+                <li>
+                  <button onClick={navigateToDashboard} className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Dashboard
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-4">Resources</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="/documentation" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Help Center
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Community
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    Blog
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-4">Contact</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="mailto:support@garur.com" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    support@garur.com
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+1234567890" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                    +1 (234) 567-890
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="mt-8 sm:mt-12 pt-8 border-t border-purple-800/30">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <p className="text-gray-400 text-sm text-center sm:text-left">
+                © {new Date().getFullYear()} Garur. All rights reserved.
+              </p>
+              <div className="flex items-center space-x-6">
+                <a href="/privacy-policy" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                  Privacy Policy
+                </a>
+                <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                  Terms of Service
+                </a>
+                <a href="#" className="text-gray-400 hover:text-purple-400 transition-colors text-sm">
+                  Cookie Policy
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

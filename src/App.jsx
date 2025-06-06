@@ -11,6 +11,8 @@ import TestPage from './pages/TestPage';
 import Profile from './pages/Profile';
 import Notebook from './pages/Notebook';
 import Dashboard from './pages/Dashboard';
+import Documentation from './pages/Documentation';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import { getAccessToken } from './utils/auth';
 
 // Protected Route Component
@@ -54,6 +56,8 @@ function App() {
               </PublicRoute>
             } 
           />
+          <Route path="/documentation" element={<Documentation />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/reader/book/:bookId" element={<Reader />} />
 
           {/* Protected Routes */}
