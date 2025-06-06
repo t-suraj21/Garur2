@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Book, Award, Calendar, MapPin, Phone, Edit3, Camera, Share2, Heart, MessageCircle, BookOpen, Trophy, Target, Users, TrendingUp, Star, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAccessToken, refreshAccessToken, logout } from '../utils/auth';
+import SettingsModal from '../components/Settings';
+import SettingsIcon from '../components/SettingsIcon';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -10,6 +12,7 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -122,6 +125,14 @@ const Profile = () => {
     setShowLogoutConfirm(false);
   };
 
+  const openSettings = () => {
+    setIsSettingsOpen(true);
+  };
+
+  const closeSettings = () => {
+    setIsSettingsOpen(false);
+  };
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -230,13 +241,19 @@ const Profile = () => {
                 <Edit3 className="w-4 h-4" />
                 <span>Edit Profile</span>
               </button>
-              <button 
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all flex items-center space-x-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
+              <div className="flex items-center gap-4">
+                <SettingsIcon 
+                  onClick={openSettings}
+                  className="ml-auto"
+                />
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -683,6 +700,8 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      <SettingsModal isOpen={isSettingsOpen} onClose={closeSettings} />
     </div>
   );
 };
