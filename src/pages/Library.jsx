@@ -287,6 +287,7 @@ const Library = () => {
           </div>
         </div>
       </header>
+      
       <div className="min-h-screen w-full px-2 sm:px-4 md:px-8 py-6 sm:py-10 flex flex-col items-center justify-start bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden relative">
         {/* Animated Background Elements */}
         <div className="fixed inset-0 pointer-events-none z-0">
@@ -294,6 +295,18 @@ const Library = () => {
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" style={{animation: 'spin 20s linear infinite'}}></div>
         </div>
+        {/* Language Filter Bar */}
+      <div className="w-full flex justify-center z-10 relative">
+        <select
+          value={selectedLanguage}
+          onChange={(e) => setSelectedLanguage(e.target.value)}
+          className="px-5 py-2 rounded-full border-2 border-purple-600 bg-[#1a1333] text-white font-medium focus:ring-2 focus:ring-purple-400 outline-none transition-all duration-200 shadow hover:bg-[#2a0845] appearance-none mt-2 mb-2"
+          style={{minWidth: '140px', maxWidth: '180px'}}>
+          {LANGUAGES.map(lang => (
+            <option key={lang.code} value={lang.code}>{lang.name}</option>
+          ))}
+        </select>
+      </div>
         {/* Search Section */}
         <section className="flex flex-col items-center mb-4 sm:mb-6 w-full relative z-10">
           <div className="w-full max-w-2xl bg-[#1a1333]/80 rounded-2xl shadow-lg p-2 sm:p-4 flex flex-col gap-2 sm:gap-3 items-center">
