@@ -14,7 +14,7 @@ const TestPage = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`http://localhost:5000/api/tests/${classId}/${subject}/${chapterId}`)
+    fetch(`http://localhost:5001/api/tests/${classId}/${subject}/${chapterId}`)
       .then(res => res.json())
       .then(data => {
         setQuestions(data.questions);

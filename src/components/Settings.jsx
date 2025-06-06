@@ -24,12 +24,10 @@ import {
   Search,
   HelpCircle
 } from 'lucide-react';
+import { useSettings } from '../context/SettingsContext';
 
 const Settings = ({ isOpen, onClose }) => {
-  // Theme Settings
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'light';
-  });
+  const { theme, setTheme, fontSize, setFontSize } = useSettings();
 
   // Notification Settings
   const [notifications, setNotifications] = useState(() => {
@@ -43,9 +41,6 @@ const Settings = ({ isOpen, onClose }) => {
   });
 
   // Study Preferences
-  const [fontSize, setFontSize] = useState(() => {
-    return localStorage.getItem('fontSize') || 'medium';
-  });
   const [readingSpeed, setReadingSpeed] = useState(() => {
     return localStorage.getItem('readingSpeed') || 'normal';
   });
@@ -91,11 +86,6 @@ const Settings = ({ isOpen, onClose }) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [activeSection, setActiveSection] = useState('appearance');
 
-  // Apply theme on initial load
-  useEffect(() => {
-    applyTheme(theme);
-  }, []);
-
   // Load and filter available voices
   useEffect(() => {
     if ('speechSynthesis' in window) {
@@ -104,12 +94,6 @@ const Settings = ({ isOpen, onClose }) => {
       filterVoices(voices, selectedLanguage, voiceGender, voiceAge);
     }
   }, [selectedLanguage, voiceGender, voiceAge]);
-
-  const applyTheme = (newTheme) => {
-    document.documentElement.classList.remove('light', 'dark', 'normal');
-    document.documentElement.classList.add(newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
 
   const filterVoices = (voices, language, gender, age) => {
     let filtered = [...voices];
@@ -141,6 +125,9 @@ const Settings = ({ isOpen, onClose }) => {
       case 'theme':
         setTheme(value);
         break;
+      case 'fontSize':
+        setFontSize(value);
+        break;
       case 'notifications':
         setNotifications(value);
         break;
@@ -149,9 +136,6 @@ const Settings = ({ isOpen, onClose }) => {
         break;
       case 'studyReminders':
         setStudyReminders(value);
-        break;
-      case 'fontSize':
-        setFontSize(value);
         break;
       case 'readingSpeed':
         setReadingSpeed(value);
@@ -191,16 +175,12 @@ const Settings = ({ isOpen, onClose }) => {
   };
 
   const saveChanges = () => {
-    // Save theme
-    applyTheme(theme);
-    
     // Save notification preferences
     localStorage.setItem('notifications', JSON.stringify(notifications));
     localStorage.setItem('emailUpdates', JSON.stringify(emailUpdates));
     localStorage.setItem('studyReminders', JSON.stringify(studyReminders));
     
     // Save study preferences
-    localStorage.setItem('fontSize', fontSize);
     localStorage.setItem('readingSpeed', readingSpeed);
     localStorage.setItem('autoSave', JSON.stringify(autoSave));
     
@@ -241,63 +221,87 @@ const Settings = ({ isOpen, onClose }) => {
     switch(activeSection) {
       case 'appearance':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-                <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
                 Theme Settings
               </h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 <button
                   onClick={() => handleSettingChange('theme', 'light')}
-                  className={`p-4 rounded-lg flex flex-col items-center gap-2 transition-all duration-300 ${
+                  className={`p-2 sm:p-4 rounded-lg flex flex-col items-center gap-1.5 sm:gap-2 transition-all duration-300 ${
                     theme === 'light'
                       ? 'bg-purple-100 dark:bg-purple-900/50 ring-2 ring-purple-500'
                       : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
-                  <Sun className="w-6 h-6 text-yellow-500" />
-                  <span className="text-sm text-gray-700 dark:text-gray-200">Light</span>
+                  <Sun className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500" />
+                  <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-200">Light</span>
                 </button>
                 <button
                   onClick={() => handleSettingChange('theme', 'dark')}
-                  className={`p-4 rounded-lg flex flex-col items-center gap-2 transition-all duration-300 ${
+                  className={`p-2 sm:p-4 rounded-lg flex flex-col items-center gap-1.5 sm:gap-2 transition-all duration-300 ${
                     theme === 'dark'
                       ? 'bg-purple-100 dark:bg-purple-900/50 ring-2 ring-purple-500'
                       : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
-                  <Moon className="w-6 h-6 text-blue-500" />
-                  <span className="text-sm text-gray-700 dark:text-gray-200">Dark</span>
+                  <Moon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                  <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-200">Dark</span>
                 </button>
                 <button
                   onClick={() => handleSettingChange('theme', 'normal')}
-                  className={`p-4 rounded-lg flex flex-col items-center gap-2 transition-all duration-300 ${
+                  className={`p-2 sm:p-4 rounded-lg flex flex-col items-center gap-1.5 sm:gap-2 transition-all duration-300 ${
                     theme === 'normal'
                       ? 'bg-purple-100 dark:bg-purple-900/50 ring-2 ring-purple-500'
                       : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
-                  <Monitor className="w-6 h-6 text-gray-500" />
-                  <span className="text-sm text-gray-700 dark:text-gray-200">System</span>
+                  <Monitor className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
+                  <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-200">System</span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-2 sm:mt-4">
+                <button
+                  onClick={() => handleSettingChange('theme', 'purple')}
+                  className={`p-2 sm:p-4 rounded-lg flex flex-col items-center gap-1.5 sm:gap-2 transition-all duration-300 ${
+                    theme === 'purple'
+                      ? 'bg-purple-100 dark:bg-purple-900/50 ring-2 ring-purple-500'
+                      : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
+                  <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-200">Purple</span>
+                </button>
+                <button
+                  onClick={() => handleSettingChange('theme', 'blue')}
+                  className={`p-2 sm:p-4 rounded-lg flex flex-col items-center gap-1.5 sm:gap-2 transition-all duration-300 ${
+                    theme === 'blue'
+                      ? 'bg-purple-100 dark:bg-purple-900/50 ring-2 ring-purple-500'
+                      : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                  <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-200">Blue</span>
                 </button>
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
                 Reading Preferences
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                     Font Size
                   </label>
                   <select
                     value={fontSize}
                     onChange={(e) => handleSettingChange('fontSize', e.target.value)}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="w-full p-1.5 sm:p-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   >
                     <option value="small">Small</option>
                     <option value="medium">Medium</option>
@@ -305,13 +309,13 @@ const Settings = ({ isOpen, onClose }) => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 sm:mb-2">
                     Reading Speed
                   </label>
                   <select
                     value={readingSpeed}
                     onChange={(e) => handleSettingChange('readingSpeed', e.target.value)}
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    className="w-full p-1.5 sm:p-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   >
                     <option value="slow">Slow</option>
                     <option value="normal">Normal</option>
@@ -633,17 +637,17 @@ const Settings = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 sm:p-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-[800px] h-[90vh] sm:h-auto shadow-xl transform transition-all duration-300 scale-100 flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 md:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-[800px] h-[95vh] sm:h-[90vh] md:h-auto shadow-xl transform transition-all duration-300 scale-100 flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
+        <div className="flex justify-between items-center p-3 sm:p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+            <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
             Settings
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-2"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors p-1 sm:p-2"
           >
             ×
           </button>
@@ -652,8 +656,8 @@ const Settings = ({ isOpen, onClose }) => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
           {/* Sidebar Navigation - Hidden on mobile, shown in bottom sheet */}
-          <div className="hidden sm:block w-48 border-r border-gray-200 dark:border-gray-700 p-4">
-            <nav className="space-y-2">
+          <div className="hidden sm:block w-40 md:w-48 border-r border-gray-200 dark:border-gray-700 p-2 sm:p-3 md:p-4">
+            <nav className="space-y-1 sm:space-y-2">
               {[
                 { id: 'appearance', label: 'Appearance', icon: Eye },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -663,15 +667,15 @@ const Settings = ({ isOpen, onClose }) => {
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg transition-colors ${
                     activeSection === item.id
                       ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400'
                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-sm sm:text-base">{item.label}</span>
                   </div>
                 </button>
               ))}
@@ -680,7 +684,7 @@ const Settings = ({ isOpen, onClose }) => {
 
           {/* Mobile Navigation - Bottom Sheet */}
           <div className="sm:hidden border-t border-gray-200 dark:border-gray-700">
-            <div className="flex justify-between p-2">
+            <div className="flex justify-between p-1 sm:p-2">
               {[
                 { id: 'appearance', label: 'Appearance', icon: Eye },
                 { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -690,47 +694,47 @@ const Settings = ({ isOpen, onClose }) => {
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+                  className={`flex flex-col items-center p-1.5 sm:p-2 rounded-lg transition-colors ${
                     activeSection === item.id
                       ? 'text-purple-600 dark:text-purple-400'
                       : 'text-gray-600 dark:text-gray-300'
                   }`}
                 >
-                  <item.icon className="w-5 h-5" />
-                  <span className="text-xs mt-1">{item.label}</span>
+                  <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1">{item.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
             {renderSection()}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
+        <div className="border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {showSaveFeedback && (
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 animate-fade-in">
-                  <Check className="w-5 h-5" />
-                  <span>Changes saved successfully!</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 text-green-600 dark:text-green-400 animate-fade-in">
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Changes saved successfully!</span>
                 </div>
               )}
             </div>
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={handleClose}
-                className="flex-1 sm:flex-none px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={saveChanges}
                 disabled={!hasUnsavedChanges}
-                className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-all ${
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg transition-all ${
                   hasUnsavedChanges
                     ? 'bg-purple-600 hover:bg-purple-700 text-white'
                     : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'

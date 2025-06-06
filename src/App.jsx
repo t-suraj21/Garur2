@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { SettingsProvider } from './context/SettingsContext';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -32,88 +33,92 @@ const PublicRoute = ({ children }) => {
 
 function App() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Landing />} />
-      <Route 
-        path="/login" 
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        } 
-      />
-      <Route 
-        path="/register" 
-        element={
-          <PublicRoute>
-            <Register />
-          </PublicRoute>
-        } 
-      />
-      <Route path="/reader/book/:bookId" element={<Reader />} />
+    <SettingsProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            } 
+          />
+          <Route path="/reader/book/:bookId" element={<Reader />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/home"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/library"
-        element={
-          <ProtectedRoute>
-            <Library />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/reader/:classId/:subject/:chapterId"
-        element={
-          <ProtectedRoute>
-            <Reader />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/test/:classId/:subject/:chapterId"
-        element={
-          <ProtectedRoute>
-            <TestPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/notebook"
-        element={
-          <ProtectedRoute>
-            <Notebook />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+          {/* Protected Routes */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/library"
+            element={
+              <ProtectedRoute>
+                <Library />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reader/:classId/:subject/:chapterId"
+            element={
+              <ProtectedRoute>
+                <Reader />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/test/:classId/:subject/:chapterId"
+            element={
+              <ProtectedRoute>
+                <TestPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notebook"
+            element={
+              <ProtectedRoute>
+                <Notebook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-      {/* Fallback Route */}
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
+          {/* Fallback Route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </SettingsProvider>
   );
 }
 
