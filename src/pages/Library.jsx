@@ -161,10 +161,36 @@ const Library = () => {
   const fetchBooks = async (searchQuery) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}?q=${encodeURIComponent(searchQuery)}&key=${API_KEY}`);
+      // Add specific filters for educational books
+      const educationalQuery = `${searchQuery} (NCERT OR "State Board" OR ICSE)`;
+      const response = await fetch(`${BASE_URL}?q=${encodeURIComponent(educationalQuery)}&key=${API_KEY}`);
       const data = await response.json();
+      
       if (data.items) {
-        setBooks(data.items);
+        // Filter books to ensure they are educational
+        const filteredBooks = data.items.filter(book => {
+          const title = book.volumeInfo.title.toLowerCase();
+          const description = book.volumeInfo.description?.toLowerCase() || '';
+          const categories = book.volumeInfo.categories?.map(cat => cat.toLowerCase()) || [];
+          
+          return (
+            title.includes('ncert') ||
+            title.includes('icse') ||
+            title.includes('state board') ||
+            description.includes('ncert') ||
+            description.includes('icse') ||
+            description.includes('state board') ||
+            categories.some(cat => 
+              cat.includes('ncert') || 
+              cat.includes('icse') || 
+              cat.includes('state board') ||
+              cat.includes('education') ||
+              cat.includes('textbook')
+            )
+          );
+        });
+        
+        setBooks(filteredBooks);
       } else {
         setBooks([]);
       }

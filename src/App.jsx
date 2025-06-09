@@ -58,7 +58,6 @@ function App() {
           />
           <Route path="/documentation" element={<Documentation />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/reader/book/:bookId" element={<Reader />} />
 
           {/* Protected Routes */}
           <Route
@@ -86,7 +85,7 @@ function App() {
             }
           />
           <Route
-            path="/reader/:classId/:subject/:chapterId"
+            path="/reader/book/:bookId"
             element={
               <ProtectedRoute>
                 <Reader />
